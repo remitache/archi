@@ -7,12 +7,18 @@ export interface Wall {
   hidden?: boolean
 }
 
+export interface RoomImage {
+  id: string
+  data: string // base64 JPEG (resized)
+}
+
 export interface RoomLabel {
   id: string
   text: string
   x: number
   y: number
   wallIds?: string[]
+  images?: RoomImage[]
 }
 
 export interface FurnitureItem {

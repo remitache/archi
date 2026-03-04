@@ -45,6 +45,37 @@
       Add Wall
     </v-btn>
 
+    <!-- Photos -->
+    <div class="text-subtitle-2 mb-2">Photos ({{ roomImages.length }})</div>
+    <div v-if="roomImages.length" class="d-flex flex-wrap ga-1 mb-2">
+      <img
+        v-for="(img, idx) in roomImages"
+        :key="img.id"
+        :src="img.data"
+        class="room-thumb"
+        @click="openGallery(idx)"
+      />
+    </div>
+    <v-btn size="small" variant="tonal" class="mb-3" @click="triggerUpload">
+      <v-icon start size="16">mdi-camera-plus</v-icon>
+      Add Photo
+    </v-btn>
+    <input
+      ref="fileInput"
+      type="file"
+      accept="image/*"
+      multiple
+      hidden
+      @change="onFilesSelected"
+    />
+
+    <RoomGalleryDialog
+      v-model="galleryOpen"
+      :images="roomImages"
+      :start-index="galleryStartIndex"
+      @delete="onDeleteImage"
+    />
+
     <v-btn color="error" variant="outlined" block @click="deleteRoom">
       <v-icon start>mdi-delete</v-icon>
       Delete Label
@@ -53,9 +84,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useProjectStore } from '../../stores/project'
 import { useEditorStore } from '../../stores/editor'
+import { resizeImageToBase64 } from '../../services/imageUtils'
+import RoomGalleryDialog from '../dialogs/RoomGalleryDialog.vue'
 import type { RoomLabel } from '../../types'
 
 const props = defineProps<{
@@ -158,8 +191,52 @@ const areaDisplay = computed(() => {
   return `${areaM2.toFixed(2)} m²`
 })
 
+// Photos
+const roomImages = computed(() => props.room.images ?? [])
+const fileInput = ref<HTMLInputElement | null>(null)
+const galleryOpen = ref(false)
+const galleryStartIndex = ref(0)
+
+function triggerUpload() {
+  fileInput.value?.click()
+}
+
+async function onFilesSelected(e: Event) {
+  const files = (e.target as HTMLInputElement).files
+  if (!files) return
+  for (const file of Array.from(files)) {
+    const base64 = await resizeImageToBase64(file)
+    projectStore.addRoomImage(props.room.id, base64)
+  }
+  // Reset so the same files can be re-selected
+  if (fileInput.value) fileInput.value.value = ''
+}
+
+function openGallery(idx: number) {
+  galleryStartIndex.value = idx
+  galleryOpen.value = true
+}
+
+function onDeleteImage(imageId: string) {
+  projectStore.deleteRoomImage(props.room.id, imageId)
+}
+
 function deleteRoom() {
   projectStore.deleteRoom(props.room.id)
   editor.clearSelection()
 }
 </script>
+
+<style scoped>
+.room-thumb {
+  width: 72px;
+  height: 72px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.room-thumb:hover {
+  opacity: 0.8;
+}
+</style>
