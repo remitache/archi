@@ -345,6 +345,9 @@ onUnmounted(() => {
 
 // Keyboard shortcuts
 function onKeyDown(e: KeyboardEvent) {
+  const tag = (e.target as HTMLElement)?.tagName
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return
+
   if (e.key === 'Delete' || e.key === 'Backspace') {
     if (editor.selectedId) {
       if (editor.selectedType === 'wall' || editor.selectedType === 'door' || editor.selectedType === 'window') {

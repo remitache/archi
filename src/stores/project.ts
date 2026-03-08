@@ -139,11 +139,14 @@ export const useProjectStore = defineStore('project', () => {
     }
   }
 
-  function addRoomImage(roomId: string, base64: string) {
+  function addRoomImage(roomId: string, base64: string, opts?: { sourceImageId?: string; prompt?: string }) {
     const room = project.value.rooms.find((r) => r.id === roomId)
     if (room) {
       if (!room.images) room.images = []
-      room.images.push({ id: generateId(), data: base64 })
+      const image: import('../types').RoomImage = { id: generateId(), data: base64 }
+      if (opts?.sourceImageId) image.sourceImageId = opts.sourceImageId
+      if (opts?.prompt) image.prompt = opts.prompt
+      room.images.push(image)
       persist()
     }
   }
@@ -153,6 +156,17 @@ export const useProjectStore = defineStore('project', () => {
     if (room && room.images) {
       room.images = room.images.filter((img) => img.id !== imageId)
       persist()
+    }
+  }
+
+  function updateRoomImage(roomId: string, imageId: string, newData: string) {
+    const room = project.value.rooms.find((r) => r.id === roomId)
+    if (room?.images) {
+      const image = room.images.find((img) => img.id === imageId)
+      if (image) {
+        image.data = newData
+        persist()
+      }
     }
   }
 
@@ -247,6 +261,7 @@ export const useProjectStore = defineStore('project', () => {
     updateRoom,
     addRoomImage,
     deleteRoomImage,
+    updateRoomImage,
     deleteRoom,
     addFurniture,
     addBasicFurniture,

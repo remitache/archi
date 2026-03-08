@@ -9,8 +9,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@huggingface/inference": "^4.13.14",
     "@mdi/font": "^7.4.47",
     "@types/three": "^0.183.1",
+    "cropperjs": "^1.6.2",
     "konva": "^10.2.0",
     "pinia": "^3.0.4",
     "tesseract.js": "^7.0.0",

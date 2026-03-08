@@ -10,6 +10,8 @@ export interface Wall {
 export interface RoomImage {
   id: string
   data: string // base64 JPEG (resized)
+  sourceImageId?: string // original image this was generated from
+  prompt?: string // AI prompt used
 }
 
 export interface RoomLabel {

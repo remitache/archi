@@ -73,6 +73,7 @@
       v-model="galleryOpen"
       :images="roomImages"
       :start-index="galleryStartIndex"
+      :room-id="room.id"
       @delete="onDeleteImage"
     />
 
